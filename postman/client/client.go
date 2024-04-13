@@ -35,7 +35,7 @@ func NewClient(apiKey string) (*Client, error) {
 	return c, nil
 }
 
-func (c *Client) HttpRequest(ctx context.Context, isRegion bool, method string, path string, query url.Values, headerMap http.Header, body *bytes.Buffer) (*bytes.Buffer, error) {
+func (c *Client) HttpRequest(ctx context.Context, method string, path string, query url.Values, headerMap http.Header, body *bytes.Buffer) (*bytes.Buffer, error) {
 	req, err := http.NewRequest(method, c.RequestPath(path), body)
 	if err != nil {
 		return nil, &RequestError{StatusCode: http.StatusInternalServerError, Err: err}

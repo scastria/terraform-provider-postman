@@ -16,7 +16,9 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("POSTMAN_API_KEY", nil),
 			},
 		},
-		ResourcesMap:         map[string]*schema.Resource{},
+		ResourcesMap: map[string]*schema.Resource{
+			"postman_workspace": resourceWorkspace(),
+		},
 		DataSourcesMap:       map[string]*schema.Resource{},
 		ConfigureContextFunc: providerConfigure,
 	}

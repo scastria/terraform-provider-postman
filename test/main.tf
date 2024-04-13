@@ -8,3 +8,8 @@ terraform {
 
 provider "postman" {
 }
+
+resource "postman_workspace" "Workspace" {
+  name = "ShawnTest"
+  type = "personal"
+}
