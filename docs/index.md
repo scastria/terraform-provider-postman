@@ -1,0 +1,24 @@
+# Postman Provider
+The Postman provider is used to interact with the Postman API.  The provider
+needs to be configured with the proper credentials before it can be used.
+
+This provider does NOT cover 100% of the Postman API.  If there is something missing
+that you would like to be added, please submit an Issue in corresponding GitHub repo.
+## Example Usage
+```hcl
+terraform {
+  required_providers {
+    postman = {
+      source  = "scastria/postman"
+      version = "~> 0.1.0"
+    }
+  }
+}
+
+# Configure the Postman Provider
+provider "postman" {
+  api_key = "XXXX"
+}
+```
+## Argument Reference
+* `api_key` - **(Required, String)** Your API key obtained via Postman UI. Can be specified via env variable `POSTMAN_API_KEY`.
