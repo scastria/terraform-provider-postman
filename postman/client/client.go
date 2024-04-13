@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/go-http-utils/headers"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"net/http"
 	"net/http/httputil"
@@ -12,22 +11,11 @@ import (
 )
 
 const (
-	ApplicationJson              = "application/json"
-	Bearer                       = "Bearer"
-	KonnectDomain                = "api.konghq.com"
-	GlobalRegion                 = "global"
-	IdSeparator                  = ":"
-	FilterName                   = "filter[name]"
-	FilterNameContains           = "filter[name][contains]"
-	FilterFullName               = "filter[full_name]"
-	FilterFullNameContains       = "filter[full_name][contains]"
-	FilterEmail                  = "filter[email]"
-	FilterEmailContains          = "filter[email][contains]"
-	FilterActive                 = "filter[active]"
-	FilterRoleName               = "filter[role_name]"
-	FilterRoleNameContains       = "filter[role_name][contains]"
-	FilterEntityTypeName         = "filter[entity_type_name]"
-	FilterEntityTypeNameContains = "filter[entity_type_name][contains]"
+	APIKeyHeader    = "X-API-Key"
+	ApplicationJson = "application/json"
+	Bearer          = "Bearer"
+	PostmanDomain   = "api.getpostman.com"
+	IdSeparator     = ":"
 )
 
 type EntityId struct {
@@ -35,25 +23,20 @@ type EntityId struct {
 }
 
 type Client struct {
-	pat    string
-	region string
-	//defaultTags []string
+	apiKey     string
 	httpClient *http.Client
 }
 
-// func NewClient(pat string, region string, defaultTags []string) (*Client, error) {
-func NewClient(pat string, region string) (*Client, error) {
+func NewClient(apiKey string) (*Client, error) {
 	c := &Client{
-		pat:    pat,
-		region: region,
-		//defaultTags: defaultTags,
+		apiKey:     apiKey,
 		httpClient: &http.Client{},
 	}
 	return c, nil
 }
 
 func (c *Client) HttpRequest(ctx context.Context, isRegion bool, method string, path string, query url.Values, headerMap http.Header, body *bytes.Buffer) (*bytes.Buffer, error) {
-	req, err := http.NewRequest(method, c.RequestPath(isRegion, path), body)
+	req, err := http.NewRequest(method, c.RequestPath(path), body)
 	if err != nil {
 		return nil, &RequestError{StatusCode: http.StatusInternalServerError, Err: err}
 	}
@@ -76,14 +59,14 @@ func (c *Client) HttpRequest(ctx context.Context, isRegion bool, method string, 
 		}
 	}
 	//Handle authentication
-	if c.pat != "" {
-		req.Header.Set(headers.Authorization, Bearer+" "+c.pat)
+	if c.apiKey != "" {
+		req.Header.Set(APIKeyHeader, c.apiKey)
 	}
 	requestDump, err := httputil.DumpRequest(req, true)
 	if err != nil {
-		tflog.Info(ctx, "Konnect API:", map[string]any{"error": err})
+		tflog.Info(ctx, "Postman API:", map[string]any{"error": err})
 	} else {
-		tflog.Info(ctx, "Konnect API: ", map[string]any{"request": string(requestDump)})
+		tflog.Info(ctx, "Postman API: ", map[string]any{"request": string(requestDump)})
 	}
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -101,12 +84,6 @@ func (c *Client) HttpRequest(ctx context.Context, isRegion bool, method string, 
 	return respBody, nil
 }
 
-func (c *Client) RequestPath(isRegion bool, path string) string {
-	var host string
-	if isRegion {
-		host = c.region
-	} else {
-		host = GlobalRegion
-	}
-	return fmt.Sprintf("https://%s.%s/%s", host, KonnectDomain, path)
+func (c *Client) RequestPath(path string) string {
+	return fmt.Sprintf("https://%s/%s", PostmanDomain, path)
 }
