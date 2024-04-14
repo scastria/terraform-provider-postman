@@ -17,7 +17,8 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"postman_workspace": resourceWorkspace(),
+			"postman_workspace":  resourceWorkspace(),
+			"postman_collection": resourceCollection(),
 		},
 		DataSourcesMap:       map[string]*schema.Resource{},
 		ConfigureContextFunc: providerConfigure,
