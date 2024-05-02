@@ -167,7 +167,10 @@ func resourceCollectionUpdate(ctx context.Context, d *schema.ResourceData, m int
 	}
 	retVal2 := client.CollectionContainer{}
 	retVal2.Child.Info.Id = retVal.Child.CreateId
-	retVal2.Child.Info.Uid = upCollection.Child.Info.Uid
+	uid, ok := d.GetOk("uid")
+	if ok {
+		retVal2.Child.Info.Uid = uid.(string)
+	}
 	retVal2.Child.Info.Name = retVal.Child.Name
 	retVal2.Child.Info.Description = retVal.Child.Description
 	retVal2.Child.Info.WorkspaceId = upCollection.Child.Info.WorkspaceId
