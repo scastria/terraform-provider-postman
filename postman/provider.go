@@ -20,6 +20,7 @@ func Provider() *schema.Provider {
 			"postman_workspace":  resourceWorkspace(),
 			"postman_collection": resourceCollection(),
 			"postman_folder":     resourceFolder(),
+			"postman_request":    resourceRequest(),
 		},
 		DataSourcesMap:       map[string]*schema.Resource{},
 		ConfigureContextFunc: providerConfigure,
