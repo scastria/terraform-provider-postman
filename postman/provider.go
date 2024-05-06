@@ -15,6 +15,16 @@ func Provider() *schema.Provider {
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("POSTMAN_API_KEY", nil),
 			},
+			"num_retries": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("POSTMAN_NUM_RETRIES", 3),
+			},
+			"retry_delay": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("POSTMAN_RETRY_DELAY", 30),
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"postman_workspace":       resourceWorkspace(),
@@ -30,8 +40,10 @@ func Provider() *schema.Provider {
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	apiKey := d.Get("api_key").(string)
+	numRetries := d.Get("num_retries").(int)
+	retryDelay := d.Get("retry_delay").(int)
 	var diags diag.Diagnostics
-	c, err := client.NewClient(apiKey)
+	c, err := client.NewClient(apiKey, numRetries, retryDelay)
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}

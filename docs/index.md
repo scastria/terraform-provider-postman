@@ -18,7 +18,11 @@ terraform {
 # Configure the Postman Provider
 provider "postman" {
   api_key = "XXXX"
+  num_retries = 3
+  retry_delay = 30
 }
 ```
 ## Argument Reference
 * `api_key` - **(Required, String)** Your API key obtained via Postman UI. Can be specified via env variable `POSTMAN_API_KEY`.
+* `num_retries` - **(Optional, Integer)** Number of retries for each Postman API call in case of 429-Too Many Requests. Can be specified via env variable `POSTMAN_NUM_RETRIES`. Default: 3.
+* `retry_delay` - **(Optional, Integer)** How long to wait (in seconds) in between retries. Can be specified via env variable `POSTMAN_RETRY_DELAY`. Default: 30.

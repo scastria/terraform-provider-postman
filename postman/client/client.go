@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"time"
 )
 
 const (
@@ -24,12 +25,16 @@ type EntityId struct {
 
 type Client struct {
 	apiKey     string
+	numRetries int
+	retryDelay int
 	httpClient *http.Client
 }
 
-func NewClient(apiKey string) (*Client, error) {
+func NewClient(apiKey string, numRetries int, retryDelay int) (*Client, error) {
 	c := &Client{
 		apiKey:     apiKey,
+		numRetries: numRetries,
+		retryDelay: retryDelay,
 		httpClient: &http.Client{},
 	}
 	return c, nil
@@ -68,9 +73,22 @@ func (c *Client) HttpRequest(ctx context.Context, method string, path string, qu
 	} else {
 		tflog.Info(ctx, "Postman API: ", map[string]any{"request": string(requestDump)})
 	}
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, &RequestError{StatusCode: http.StatusInternalServerError, Err: err}
+	try := 0
+	var resp *http.Response
+	for {
+		resp, err = c.httpClient.Do(req)
+		if err != nil {
+			return nil, &RequestError{StatusCode: http.StatusInternalServerError, Err: err}
+		}
+		if resp.StatusCode == http.StatusTooManyRequests {
+			try++
+			if try >= c.numRetries {
+				break
+			}
+			time.Sleep(time.Duration(c.retryDelay) * time.Second)
+			continue
+		}
+		break
 	}
 	defer resp.Body.Close()
 	respBody := new(bytes.Buffer)
