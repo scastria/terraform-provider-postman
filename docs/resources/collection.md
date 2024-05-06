@@ -11,12 +11,21 @@ resource "postman_collection" "example" {
   workspace_id = postman_workspace.Workspace.id
   name = "My Collection"
   description = "This is my collection"
+  var {
+    key = "url_base"
+    value = "https://postman-echo.com"
+  }
 }
 ```
 ## Argument Reference
 * `workspace_id` - **(Required, ForceNew, String)** The id of the parent workspace.
 * `name` - **(Required, String)** The name of the collection.
 * `description` - **(Optional, String)** The description of the collection.
+* `var` - **(Optional, list{var})** Configuration block for a variable.  Can be specified multiple times for each var.  Each block supports the fields documented below.
+## var
+* `key` - **(Required, String)** The name of the variable.
+* `value` - **(Optional, String)** The value of the variable.
+* `disabled` - **(Optional, Boolean)** Whether the variable is disabled. Default: `false`
 ## Attribute Reference
 * `id` - **(String)** Same as `workspace_id`:`collection_id`
 * `collection_id` - **(String)** Id of the collection alone

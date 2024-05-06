@@ -18,6 +18,10 @@ resource "postman_collection" "Collection" {
   workspace_id = postman_workspace.Workspace.id
   name = "ShawnTest"
   description = "Desc"
+  var {
+    key = "url_base"
+    value = "https://postman-echo.com"
+  }
 }
 
 resource "postman_folder" "Folder" {

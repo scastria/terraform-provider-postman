@@ -10,13 +10,20 @@ const (
 )
 
 type Collection struct {
-	Info CollectionInfo `json:"info"`
+	Info      CollectionInfo `json:"info"`
+	Variables []Variable     `json:"variable"`
+}
+
+type CollectionUpdate struct {
+	Info      CollectionInfo `json:"info"`
+	Variables []Variable     `json:"variables"`
 }
 
 type CollectionCreate struct {
 	Info CollectionInfo `json:"info"`
 	// Not actually strings, but we don't need to care about the structure
-	Items []string `json:"item"`
+	Items     []string   `json:"item"`
+	Variables []Variable `json:"variables"`
 }
 
 type CollectionInfo struct {
@@ -29,12 +36,22 @@ type CollectionInfo struct {
 	Schema      string `json:"schema,omitempty"`
 }
 
+type Variable struct {
+	Key      string `json:"key"`
+	Value    string `json:"value"`
+	Type     string `json:"type"`
+	Disabled bool   `json:"disabled"`
+}
 type CollectionContainer struct {
 	Child Collection `json:"collection"`
 }
 
 type CollectionCreateContainer struct {
 	Child CollectionCreate `json:"collection"`
+}
+
+type CollectionUpdateContainer struct {
+	Child CollectionUpdate `json:"collection"`
 }
 
 type CollectionInfoContainer struct {
