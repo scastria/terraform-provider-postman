@@ -12,6 +12,7 @@ import (
 	"github.com/scastria/terraform-provider-postman/postman/client"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 func resourceRequest() *schema.Resource {
@@ -136,7 +137,6 @@ func fillRequest(c *client.RequestData, d *schema.ResourceData) {
 			})
 		}
 	}
-	parseURL, _ := url.Parse(c.BaseURL)
 	requestQuery := url.Values{}
 	for _, queryParam := range c.QueryParams {
 		if !queryParam.Enabled {
@@ -144,8 +144,13 @@ func fillRequest(c *client.RequestData, d *schema.ResourceData) {
 		}
 		requestQuery.Add(queryParam.Key, queryParam.Value)
 	}
-	parseURL.RawQuery = requestQuery.Encode()
-	c.URL = parseURL.String()
+	encodedQuery := requestQuery.Encode()
+	// Manually append query params to prevent URL parsing from escaping variables in the host and path
+	if len(encodedQuery) > 0 {
+		c.URL = c.BaseURL + "?" + encodedQuery
+	} else {
+		c.URL = c.BaseURL
+	}
 }
 
 func fillResourceDataFromRequest(c *client.Request, d *schema.ResourceData) {
@@ -154,10 +159,8 @@ func fillResourceDataFromRequest(c *client.Request, d *schema.ResourceData) {
 	d.Set("description", c.Data.Description)
 	d.Set("folder_id", c.Data.FolderId)
 	d.Set("method", c.Data.Method)
-	parseURL, _ := url.Parse(c.Data.URL)
-	parseURL.RawQuery = ""
-	parseURL.Fragment = ""
-	d.Set("base_url", parseURL.String())
+	// Manually strip query params to prevent URL parsing from escaping variables in the host and path
+	d.Set("base_url", strings.Split(c.Data.URL, "?")[0])
 	d.Set("url", c.Data.URL)
 	d.Set("request_id", c.Data.Id)
 	var queryParams []map[string]interface{}
