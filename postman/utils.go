@@ -6,6 +6,14 @@ import (
 	"reflect"
 )
 
+func convertInterfaceArrayToStringArray(arr []interface{}) []string {
+	retVal := []string{}
+	for _, a := range arr {
+		retVal = append(retVal, a.(string))
+	}
+	return retVal
+}
+
 func convertSetToArray(set *schema.Set) []string {
 	setList := set.List()
 	retVal := []string{}

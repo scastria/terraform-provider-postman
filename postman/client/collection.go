@@ -12,18 +12,31 @@ const (
 type Collection struct {
 	Info      CollectionInfo `json:"info"`
 	Variables []Variable     `json:"variable"`
+	Events    []Event        `json:"event"`
 }
 
 type CollectionUpdate struct {
 	Info      CollectionInfo `json:"info"`
 	Variables []Variable     `json:"variables"`
+	Events    []Event        `json:"events"`
 }
 
 type CollectionCreate struct {
-	Info CollectionInfo `json:"info"`
-	// Not actually strings, but we don't need to care about the structure
-	Items     []string   `json:"item"`
-	Variables []Variable `json:"variables"`
+	Info      CollectionInfo `json:"info"`
+	Items     []interface{}  `json:"item"`
+	Variables []Variable     `json:"variables"`
+	Events    []Event        `json:"events"`
+}
+
+type Event struct {
+	Listen string `json:"listen"`
+	Script Script `json:"script"`
+}
+
+type Script struct {
+	Id   string   `json:"id"`
+	Type string   `json:"type"`
+	Exec []string `json:"exec"`
 }
 
 type CollectionInfo struct {

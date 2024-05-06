@@ -65,6 +65,20 @@ func resourceCollection() *schema.Resource {
 					},
 				},
 			},
+			"pre_request_script": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"post_response_script": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -89,13 +103,36 @@ func fillCollectionUpdate(c *client.CollectionUpdateContainer, d *schema.Resourc
 			})
 		}
 	}
+	c.Child.Events = []client.Event{}
+	preRequestScript, ok := d.GetOk("pre_request_script")
+	if ok {
+		c.Child.Events = append(c.Child.Events, client.Event{
+			Listen: "prerequest",
+			Script: client.Script{
+				Id:   "prerequest",
+				Type: client.TextJS,
+				Exec: convertInterfaceArrayToStringArray(preRequestScript.([]interface{})),
+			},
+		})
+	}
+	postResponseScript, ok := d.GetOk("post_response_script")
+	if ok {
+		c.Child.Events = append(c.Child.Events, client.Event{
+			Listen: "test",
+			Script: client.Script{
+				Id:   "test",
+				Type: client.TextJS,
+				Exec: convertInterfaceArrayToStringArray(postResponseScript.([]interface{})),
+			},
+		})
+	}
 }
 
 func fillCollectionCreate(c *client.CollectionCreateContainer, d *schema.ResourceData) {
 	c.Child.Info.WorkspaceId = d.Get("workspace_id").(string)
 	c.Child.Info.Name = d.Get("name").(string)
 	c.Child.Info.Schema = client.CollectionSchema
-	c.Child.Items = []string{}
+	c.Child.Items = []interface{}{}
 	description, ok := d.GetOk("description")
 	if ok {
 		c.Child.Info.Description = description.(string)
@@ -113,6 +150,29 @@ func fillCollectionCreate(c *client.CollectionCreateContainer, d *schema.Resourc
 			})
 		}
 	}
+	c.Child.Events = []client.Event{}
+	preRequestScript, ok := d.GetOk("pre_request_script")
+	if ok {
+		c.Child.Events = append(c.Child.Events, client.Event{
+			Listen: "prerequest",
+			Script: client.Script{
+				Id:   "prerequest",
+				Type: client.TextJS,
+				Exec: convertInterfaceArrayToStringArray(preRequestScript.([]interface{})),
+			},
+		})
+	}
+	postResponseScript, ok := d.GetOk("post_response_script")
+	if ok {
+		c.Child.Events = append(c.Child.Events, client.Event{
+			Listen: "test",
+			Script: client.Script{
+				Id:   "test",
+				Type: client.TextJS,
+				Exec: convertInterfaceArrayToStringArray(postResponseScript.([]interface{})),
+			},
+		})
+	}
 }
 
 func fillResourceDataFromCollection(c *client.CollectionContainer, d *schema.ResourceData) {
@@ -128,12 +188,24 @@ func fillResourceDataFromCollection(c *client.CollectionContainer, d *schema.Res
 			variableMap := map[string]interface{}{}
 			variableMap["key"] = variable.Key
 			variableMap["value"] = variable.Value
-			variableMap["type"] = variable.Type
 			variableMap["disabled"] = variable.Disabled
 			variables = append(variables, variableMap)
 		}
 	}
 	d.Set("var", variables)
+	preRequestScripts := []string{}
+	postResponseScripts := []string{}
+	if c.Child.Events != nil {
+		for _, event := range c.Child.Events {
+			if event.Listen == "prerequest" {
+				preRequestScripts = event.Script.Exec
+			} else if event.Listen == "test" {
+				postResponseScripts = event.Script.Exec
+			}
+		}
+	}
+	d.Set("pre_request_script", preRequestScripts)
+	d.Set("post_response_script", postResponseScripts)
 }
 
 func resourceCollectionCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {

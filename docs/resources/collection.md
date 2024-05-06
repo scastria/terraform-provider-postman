@@ -15,12 +15,18 @@ resource "postman_collection" "example" {
     key = "url_base"
     value = "https://postman-echo.com"
   }
+  pre_request_script = [
+    "script line 1",
+    "script line 2"
+  ]
 }
 ```
 ## Argument Reference
 * `workspace_id` - **(Required, ForceNew, String)** The id of the parent workspace.
 * `name` - **(Required, String)** The name of the collection.
 * `description` - **(Optional, String)** The description of the collection.
+* `pre_request_script` - **(Optional, List of String)** The JS script to run before the request.
+* `post_response_script` - **(Optional, List of String)** The JS script to run after the response (previously called Test scripts).
 * `var` - **(Optional, list{var})** Configuration block for a variable.  Can be specified multiple times for each var.  Each block supports the fields documented below.
 ## var
 * `key` - **(Required, String)** The name of the variable.

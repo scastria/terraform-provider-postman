@@ -22,7 +22,25 @@ resource "postman_collection" "Collection" {
     key = "url_base"
     value = "https://postman-echo.com"
   }
+  pre_request_script = [
+    "script1",
+    "script2"
+  ]
+  post_response_script = [
+    "script1",
+    "script2"
+  ]
 }
+
+# resource "postman_collection" "Collection2" {
+#   workspace_id = postman_workspace.Workspace.id
+#   name = "ShawnTest2"
+#   description = "Desc2"
+#   pre_request_script = [
+#     "script1",
+#     "script2"
+#   ]
+# }
 
 resource "postman_folder" "Folder" {
   for_each = toset(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"])

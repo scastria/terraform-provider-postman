@@ -14,6 +14,7 @@ import (
 const (
 	APIKeyHeader    = "X-API-Key"
 	ApplicationJson = "application/json"
+	TextJS          = "text/javascript"
 	Bearer          = "Bearer"
 	PostmanDomain   = "api.getpostman.com"
 	IdSeparator     = ":"
