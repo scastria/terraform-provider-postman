@@ -9,7 +9,11 @@ import (
 func convertInterfaceArrayToStringArray(arr []interface{}) []string {
 	retVal := []string{}
 	for _, a := range arr {
-		retVal = append(retVal, a.(string))
+		line := ""
+		if a != nil {
+			line = a.(string)
+		}
+		retVal = append(retVal, line)
 	}
 	return retVal
 }
