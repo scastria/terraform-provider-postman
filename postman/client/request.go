@@ -20,6 +20,7 @@ type RequestData struct {
 	Description  string       `json:"description"`
 	Method       string       `json:"method"`
 	QueryParams  []QueryParam `json:"queryParams"`
+	Events       []Event      `json:"events"`
 }
 type QueryParam struct {
 	Key         string `json:"key"`

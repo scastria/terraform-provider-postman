@@ -47,6 +47,14 @@ resource "postman_folder" "Folder" {
   collection_id = postman_collection.Collection.collection_id
   name = each.key
 }
+# resource "postman_folder" "ScriptFolder" {
+#   collection_id = postman_collection.Collection.collection_id
+#   name = "WithScripts"
+#   pre_request_script = [
+#       "script1",
+#       "script2"
+#   ]
+# }
 
 resource "postman_collection_sort" "CollectionSort" {
   collection_id = postman_collection.Collection.collection_id
@@ -76,4 +84,8 @@ resource "postman_collection_sort" "CollectionSort" {
 #     value = "v3"
 #     enabled = true
 #   }
+#   pre_request_script = [
+#       "script1",
+#       "script2"
+#   ]
 # }

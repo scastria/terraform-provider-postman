@@ -102,6 +102,20 @@ func resourceRequest() *schema.Resource {
 					},
 				},
 			},
+			"pre_request_script": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"post_response_script": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -151,6 +165,29 @@ func fillRequest(c *client.RequestData, d *schema.ResourceData) {
 	} else {
 		c.URL = c.BaseURL
 	}
+	c.Events = []client.Event{}
+	preRequestScript, ok := d.GetOk("pre_request_script")
+	if ok {
+		c.Events = append(c.Events, client.Event{
+			Listen: "prerequest",
+			Script: client.Script{
+				Id:   "prerequest",
+				Type: client.TextJS,
+				Exec: convertInterfaceArrayToStringArray(preRequestScript.([]interface{})),
+			},
+		})
+	}
+	postResponseScript, ok := d.GetOk("post_response_script")
+	if ok {
+		c.Events = append(c.Events, client.Event{
+			Listen: "test",
+			Script: client.Script{
+				Id:   "test",
+				Type: client.TextJS,
+				Exec: convertInterfaceArrayToStringArray(postResponseScript.([]interface{})),
+			},
+		})
+	}
 }
 
 func fillResourceDataFromRequest(c *client.Request, d *schema.ResourceData) {
@@ -176,6 +213,19 @@ func fillResourceDataFromRequest(c *client.Request, d *schema.ResourceData) {
 		}
 	}
 	d.Set("query_param", queryParams)
+	preRequestScripts := []string{}
+	postResponseScripts := []string{}
+	if c.Data.Events != nil {
+		for _, event := range c.Data.Events {
+			if event.Listen == "prerequest" {
+				preRequestScripts = event.Script.Exec
+			} else if event.Listen == "test" {
+				postResponseScripts = event.Script.Exec
+			}
+		}
+	}
+	d.Set("pre_request_script", preRequestScripts)
+	d.Set("post_response_script", postResponseScripts)
 }
 
 func resourceRequestCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {

@@ -11,11 +11,12 @@ type Folder struct {
 	Data FolderData `json:"data"`
 }
 type FolderData struct {
-	CollectionId   string `json:"collection,omitempty"`
-	ParentFolderId string `json:"folder,omitempty"`
-	Id             string `json:"id,omitempty"`
-	Name           string `json:"name,omitempty"`
-	Description    string `json:"description"`
+	CollectionId   string  `json:"collection,omitempty"`
+	ParentFolderId string  `json:"folder,omitempty"`
+	Id             string  `json:"id,omitempty"`
+	Name           string  `json:"name,omitempty"`
+	Description    string  `json:"description"`
+	Events         []Event `json:"events"`
 }
 
 func (c *Folder) FolderEncodeId() string {

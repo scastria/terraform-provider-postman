@@ -44,6 +44,20 @@ func resourceFolder() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"pre_request_script": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"post_response_script": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -58,6 +72,29 @@ func fillFolder(c *client.FolderData, d *schema.ResourceData) {
 	if ok {
 		c.ParentFolderId = parentFolderId.(string)
 	}
+	c.Events = []client.Event{}
+	preRequestScript, ok := d.GetOk("pre_request_script")
+	if ok {
+		c.Events = append(c.Events, client.Event{
+			Listen: "prerequest",
+			Script: client.Script{
+				Id:   "prerequest",
+				Type: client.TextJS,
+				Exec: convertInterfaceArrayToStringArray(preRequestScript.([]interface{})),
+			},
+		})
+	}
+	postResponseScript, ok := d.GetOk("post_response_script")
+	if ok {
+		c.Events = append(c.Events, client.Event{
+			Listen: "test",
+			Script: client.Script{
+				Id:   "test",
+				Type: client.TextJS,
+				Exec: convertInterfaceArrayToStringArray(postResponseScript.([]interface{})),
+			},
+		})
+	}
 }
 
 func fillResourceDataFromFolder(c *client.Folder, d *schema.ResourceData) {
@@ -66,6 +103,19 @@ func fillResourceDataFromFolder(c *client.Folder, d *schema.ResourceData) {
 	d.Set("description", c.Data.Description)
 	d.Set("parent_folder_id", c.Data.ParentFolderId)
 	d.Set("folder_id", c.Data.Id)
+	preRequestScripts := []string{}
+	postResponseScripts := []string{}
+	if c.Data.Events != nil {
+		for _, event := range c.Data.Events {
+			if event.Listen == "prerequest" {
+				preRequestScripts = event.Script.Exec
+			} else if event.Listen == "test" {
+				postResponseScripts = event.Script.Exec
+			}
+		}
+	}
+	d.Set("pre_request_script", preRequestScripts)
+	d.Set("post_response_script", postResponseScripts)
 }
 
 func resourceFolderCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {

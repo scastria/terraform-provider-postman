@@ -29,6 +29,10 @@ resource "postman_request" "example" {
     description = "My param"
     enabled = true
   }
+  pre_request_script = [
+    "script line 1",
+    "script line 2"
+  ]
 }
 ```
 ## Argument Reference
@@ -39,6 +43,8 @@ resource "postman_request" "example" {
 * `method` - **(Optional, String)** The method of the request. Allowed values: `GET`, `PUT`, `POST`, `PATCH`, `DELETE`, `COPY`, `HEAD`, `OPTIONS`, `LINK`, `UNLINK`, `PURGE`, `LOCK`, `UNLOCK`, `PROPFIND`, `VIEW`. Default: `GET`.
 * `base_url` - **(Optional, String)** The base url of the request (excluding query params).
 * `query_param` - **(Optional, list{query_param})** Configuration block for a query_param.  Can be specified multiple times for each query_param.  Each block supports the fields documented below.
+* `pre_request_script` - **(Optional, List of String)** The JS script to run before the request.
+* `post_response_script` - **(Optional, List of String)** The JS script to run after the response (previously called Test scripts).
 ## query_param
 * `key` - **(Required, String)** The name of the query param.
 * `value` - **(Optional, String)** The value of the query param.
