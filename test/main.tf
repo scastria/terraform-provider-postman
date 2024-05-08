@@ -59,6 +59,8 @@ resource "postman_folder" "Folder" {
 resource "postman_collection_sort" "CollectionSort" {
   collection_id = postman_collection.Collection.collection_id
   order = "ASC"
+  hash = timestamp()
+  case_sensitive = true
   depends_on = [postman_folder.Folder]
 }
 

@@ -10,10 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scastria/terraform-provider-postman/postman/client"
-	"github.com/tidwall/gjson"
 	"net/http"
-	"reflect"
 	"sort"
+	"strings"
 )
 
 func resourceCollectionSort() *schema.Resource {
@@ -36,6 +35,11 @@ func resourceCollectionSort() *schema.Resource {
 				Optional:     true,
 				Default:      "ASC",
 				ValidateFunc: validation.StringInSlice([]string{"ASC", "DESC", "NONE"}, false),
+			},
+			"case_sensitive": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
 			},
 			"hash": {
 				Type:     schema.TypeString,
@@ -98,58 +102,33 @@ func resourceCollectionSortRead(ctx context.Context, d *schema.ResourceData, m i
 	return diags
 }
 
-func sortItems(ctx context.Context, items any, order string) {
-	//tflog.Warn(ctx, "BEFORE: "+getJSON(items))
-	itemsValue := reflect.ValueOf(items)
-	itemsArray := itemsValue.Interface().([]map[string]any)
+func sortItems(items []map[string]interface{}, order string, case_sensitive bool) {
 	sort.Slice(items, func(i, j int) bool {
+		name1 := items[i]["name"].(string)
+		name2 := items[j]["name"].(string)
+		if !case_sensitive {
+			name1 = strings.ToLower(name1)
+			name2 = strings.ToLower(name2)
+		}
 		if order == "ASC" {
-			return itemsArray[i]["name"].(string) < itemsArray[j]["name"].(string)
-			//return itemsValue.Index(i).MapIndex(reflect.ValueOf("name")).Interface().(string) < itemsValue.Index(j).MapIndex(reflect.ValueOf("name")).Interface().(string)
+			return name1 < name2
 		} else {
-			return itemsArray[i]["name"].(string) > itemsArray[j]["name"].(string)
-			//return itemsValue.Index(i).MapIndex(reflect.ValueOf("name")).Interface().(string) > itemsValue.Index(j).MapIndex(reflect.ValueOf("name")).Interface().(string)
+			return name1 > name2
 		}
 	})
-	//tflog.Warn(ctx, "AFTER: "+getJSON(items))
-	//for i := 0; i < itemsValue.Len(); i++ {
-	//	itemValue := itemsValue.Index(i)
-	//	childrenValue := itemValue.MapIndex(reflect.ValueOf("item"))
-	//	if !childrenValue.IsValid() {
-	//		continue
-	//	}
-	//	tflog.Warn(ctx, "CHILDREN: "+getJSON(childrenValue.Interface()))
-	//	if len(childrenValue.Interface().([]any)) == 0 {
-	//		continue
-	//	}
-	//	sortItems(ctx, childrenValue.Interface(), order)
-	//}
+	for _, item := range items {
+		if _, ok := item["item"]; !ok {
+			continue
+		}
+		children := item["item"].([]interface{})
+		if len(children) == 0 {
+			continue
+		}
+		newChildren := convertJSONArrayToJSONObjectArray(children)
+		sortItems(newChildren, order, case_sensitive)
+		item["item"] = newChildren
+	}
 }
-
-//func sortItems(ctx context.Context, items gjson.Result, order string) gjson.Result {
-//	sort.Slice(items, func(i, j int) bool {
-//		if order == "ASC" {
-//			return itemsArray[i]["name"].(string) < itemsArray[j]["name"].(string)
-//			//return itemsValue.Index(i).MapIndex(reflect.ValueOf("name")).Interface().(string) < itemsValue.Index(j).MapIndex(reflect.ValueOf("name")).Interface().(string)
-//		} else {
-//			return itemsArray[i]["name"].(string) > itemsArray[j]["name"].(string)
-//			//return itemsValue.Index(i).MapIndex(reflect.ValueOf("name")).Interface().(string) > itemsValue.Index(j).MapIndex(reflect.ValueOf("name")).Interface().(string)
-//		}
-//	})
-//	//tflog.Warn(ctx, "AFTER: "+getJSON(items))
-//	//for i := 0; i < itemsValue.Len(); i++ {
-//	//	itemValue := itemsValue.Index(i)
-//	//	childrenValue := itemValue.MapIndex(reflect.ValueOf("item"))
-//	//	if !childrenValue.IsValid() {
-//	//		continue
-//	//	}
-//	//	tflog.Warn(ctx, "CHILDREN: "+getJSON(childrenValue.Interface()))
-//	//	if len(childrenValue.Interface().([]any)) == 0 {
-//	//		continue
-//	//	}
-//	//	sortItems(ctx, childrenValue.Interface(), order)
-//	//}
-//}
 
 func applySort(ctx context.Context, d *schema.ResourceData, c *client.Client) (bool, error) {
 	// Read current
@@ -172,8 +151,8 @@ func applySort(ctx context.Context, d *schema.ResourceData, c *client.Client) (b
 	if order == "NONE" {
 		return false, nil
 	}
-	items := gjson.Parse(getJSON(retVal.Child.Items))
-	sortItems(ctx, items.Value().([]map[string]interface{}), order)
+	case_sensitive := d.Get("case_sensitive").(bool)
+	sortItems(retVal.Child.Items, order, case_sensitive)
 	buf := bytes.Buffer{}
 	err = json.NewEncoder(&buf).Encode(retVal)
 	if err != nil {

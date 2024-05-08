@@ -23,6 +23,15 @@ func getJSON(data interface{}) string {
 	return string(byteStr[:])
 }
 
+func convertJSONArrayToJSONObjectArray(arr []interface{}) []map[string]interface{} {
+	retVal := []map[string]interface{}{}
+	for _, a := range arr {
+		item := a.(map[string]interface{})
+		retVal = append(retVal, item)
+	}
+	return retVal
+}
+
 func convertSetToArray(set *schema.Set) []string {
 	setList := set.List()
 	retVal := []string{}

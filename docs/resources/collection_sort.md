@@ -15,11 +15,13 @@ resource "postman_collection" "Collection" {
 resource "postman_collection_sort" "example" {
   collection_id = postman_collection.Collection.collection_id
   order = "ASC"
+  case_sensitive = false
 }
 ```
 ## Argument Reference
 * `collection_id` - **(Required, ForceNew, String)** The id of the collection.
 * `order` - **(Optional, String)** The order in which to sort the direct contents. Allowed values: `ASC`, `DESC`, `NONE`. Default: `ASC`.
+* `case_sensitive` - **(Optional, Boolean)** Whether to sort with case sensitivity. Default: `false`.
 * `hash` - **(Optional, String)** A hash value to trigger a resort.
 ## Attribute Reference
 * `id` - **(String)** Same as `collection_id`
