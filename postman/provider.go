@@ -33,7 +33,9 @@ func Provider() *schema.Provider {
 			"postman_request":         resourceRequest(),
 			"postman_collection_sort": resourceCollectionSort(),
 		},
-		DataSourcesMap:       map[string]*schema.Resource{},
+		DataSourcesMap: map[string]*schema.Resource{
+			"postman_workspace": dataSourceWorkspace(),
+		},
 		ConfigureContextFunc: providerConfigure,
 	}
 }

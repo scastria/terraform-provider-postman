@@ -9,28 +9,37 @@ terraform {
 provider "postman" {
 }
 
-resource "postman_workspace" "Workspace" {
-  name = "ShawnTest"
-  type = "personal"
+data "postman_workspace" "Workspace" {
+#   name = "Data Team APIs"
+  search_name = "place"
 }
 
-resource "postman_collection" "Collection" {
-  workspace_id = postman_workspace.Workspace.id
-  name = "ShawnTest"
-  description = "Desc"
-  var {
-    key = "url_base"
-    value = "https://postman-echo.com"
-  }
-  pre_request_script = [
-    "script1",
-    "script2"
-  ]
-  post_response_script = [
-    "script1",
-    "script2"
-  ]
+output "workspace_id" {
+  value = data.postman_workspace.Workspace
 }
+
+# resource "postman_workspace" "Workspace" {
+#   name = "ShawnTest"
+#   type = "personal"
+# }
+
+# resource "postman_collection" "Collection" {
+#   workspace_id = postman_workspace.Workspace.id
+#   name = "ShawnTest"
+#   description = "Desc"
+#   var {
+#     key = "url_base"
+#     value = "https://postman-echo.com"
+#   }
+#   pre_request_script = [
+#     "script1",
+#     "script2"
+#   ]
+#   post_response_script = [
+#     "script1",
+#     "script2"
+#   ]
+# }
 
 # resource "postman_collection" "Collection2" {
 #   workspace_id = postman_workspace.Workspace.id
@@ -42,11 +51,11 @@ resource "postman_collection" "Collection" {
 #   ]
 # }
 
-resource "postman_folder" "Folder" {
-  for_each = toset(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"])
-  collection_id = postman_collection.Collection.collection_id
-  name = each.key
-}
+# resource "postman_folder" "Folder" {
+#   for_each = toset(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"])
+#   collection_id = postman_collection.Collection.collection_id
+#   name = each.key
+# }
 # resource "postman_folder" "ScriptFolder" {
 #   collection_id = postman_collection.Collection.collection_id
 #   name = "WithScripts"
@@ -56,13 +65,13 @@ resource "postman_folder" "Folder" {
 #   ]
 # }
 
-resource "postman_collection_sort" "CollectionSort" {
-  collection_id = postman_collection.Collection.collection_id
-  order = "ASC"
-  hash = timestamp()
-  case_sensitive = true
-  depends_on = [postman_folder.Folder]
-}
+# resource "postman_collection_sort" "CollectionSort" {
+#   collection_id = postman_collection.Collection.collection_id
+#   order = "ASC"
+#   hash = timestamp()
+#   case_sensitive = true
+#   depends_on = [postman_folder.Folder]
+# }
 
 # resource "postman_request" "Request" {
 #   collection_id = postman_collection.Collection.collection_id

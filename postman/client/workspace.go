@@ -15,3 +15,7 @@ type Workspace struct {
 type WorkspaceContainer struct {
 	Child Workspace `json:"workspace"`
 }
+
+type WorkspaceCollection struct {
+	Data []Workspace `json:"workspaces"`
+}
