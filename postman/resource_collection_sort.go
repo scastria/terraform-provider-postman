@@ -10,7 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scastria/terraform-provider-postman/postman/client"
+	"github.com/tidwall/gjson"
 	"net/http"
+	"reflect"
 	"sort"
 )
 
@@ -96,6 +98,59 @@ func resourceCollectionSortRead(ctx context.Context, d *schema.ResourceData, m i
 	return diags
 }
 
+func sortItems(ctx context.Context, items any, order string) {
+	//tflog.Warn(ctx, "BEFORE: "+getJSON(items))
+	itemsValue := reflect.ValueOf(items)
+	itemsArray := itemsValue.Interface().([]map[string]any)
+	sort.Slice(items, func(i, j int) bool {
+		if order == "ASC" {
+			return itemsArray[i]["name"].(string) < itemsArray[j]["name"].(string)
+			//return itemsValue.Index(i).MapIndex(reflect.ValueOf("name")).Interface().(string) < itemsValue.Index(j).MapIndex(reflect.ValueOf("name")).Interface().(string)
+		} else {
+			return itemsArray[i]["name"].(string) > itemsArray[j]["name"].(string)
+			//return itemsValue.Index(i).MapIndex(reflect.ValueOf("name")).Interface().(string) > itemsValue.Index(j).MapIndex(reflect.ValueOf("name")).Interface().(string)
+		}
+	})
+	//tflog.Warn(ctx, "AFTER: "+getJSON(items))
+	//for i := 0; i < itemsValue.Len(); i++ {
+	//	itemValue := itemsValue.Index(i)
+	//	childrenValue := itemValue.MapIndex(reflect.ValueOf("item"))
+	//	if !childrenValue.IsValid() {
+	//		continue
+	//	}
+	//	tflog.Warn(ctx, "CHILDREN: "+getJSON(childrenValue.Interface()))
+	//	if len(childrenValue.Interface().([]any)) == 0 {
+	//		continue
+	//	}
+	//	sortItems(ctx, childrenValue.Interface(), order)
+	//}
+}
+
+//func sortItems(ctx context.Context, items gjson.Result, order string) gjson.Result {
+//	sort.Slice(items, func(i, j int) bool {
+//		if order == "ASC" {
+//			return itemsArray[i]["name"].(string) < itemsArray[j]["name"].(string)
+//			//return itemsValue.Index(i).MapIndex(reflect.ValueOf("name")).Interface().(string) < itemsValue.Index(j).MapIndex(reflect.ValueOf("name")).Interface().(string)
+//		} else {
+//			return itemsArray[i]["name"].(string) > itemsArray[j]["name"].(string)
+//			//return itemsValue.Index(i).MapIndex(reflect.ValueOf("name")).Interface().(string) > itemsValue.Index(j).MapIndex(reflect.ValueOf("name")).Interface().(string)
+//		}
+//	})
+//	//tflog.Warn(ctx, "AFTER: "+getJSON(items))
+//	//for i := 0; i < itemsValue.Len(); i++ {
+//	//	itemValue := itemsValue.Index(i)
+//	//	childrenValue := itemValue.MapIndex(reflect.ValueOf("item"))
+//	//	if !childrenValue.IsValid() {
+//	//		continue
+//	//	}
+//	//	tflog.Warn(ctx, "CHILDREN: "+getJSON(childrenValue.Interface()))
+//	//	if len(childrenValue.Interface().([]any)) == 0 {
+//	//		continue
+//	//	}
+//	//	sortItems(ctx, childrenValue.Interface(), order)
+//	//}
+//}
+
 func applySort(ctx context.Context, d *schema.ResourceData, c *client.Client) (bool, error) {
 	// Read current
 	requestPath := fmt.Sprintf(client.CollectionPathGet, d.Id())
@@ -117,13 +172,8 @@ func applySort(ctx context.Context, d *schema.ResourceData, c *client.Client) (b
 	if order == "NONE" {
 		return false, nil
 	}
-	sort.Slice(retVal.Child.Items, func(i, j int) bool {
-		if order == "ASC" {
-			return retVal.Child.Items[i]["name"].(string) < retVal.Child.Items[j]["name"].(string)
-		} else {
-			return retVal.Child.Items[i]["name"].(string) > retVal.Child.Items[j]["name"].(string)
-		}
-	})
+	items := gjson.Parse(getJSON(retVal.Child.Items))
+	sortItems(ctx, items.Value().([]map[string]interface{}), order)
 	buf := bytes.Buffer{}
 	err = json.NewEncoder(&buf).Encode(retVal)
 	if err != nil {

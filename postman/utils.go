@@ -18,6 +18,11 @@ func convertInterfaceArrayToStringArray(arr []interface{}) []string {
 	return retVal
 }
 
+func getJSON(data interface{}) string {
+	byteStr, _ := json.Marshal(data)
+	return string(byteStr[:])
+}
+
 func convertSetToArray(set *schema.Set) []string {
 	setList := set.List()
 	retVal := []string{}
