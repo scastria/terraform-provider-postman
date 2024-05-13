@@ -24,5 +24,5 @@ provider "postman" {
 ```
 ## Argument Reference
 * `api_key` - **(Required, String)** Your API key obtained via Postman UI. Can be specified via env variable `POSTMAN_API_KEY`.
-* `num_retries` - **(Optional, Integer)** Number of retries for each Postman API call in case of 429-Too Many Requests. Can be specified via env variable `POSTMAN_NUM_RETRIES`. Default: 3.
+* `num_retries` - **(Optional, Integer)** Number of retries for each Postman API call in case of 429-Too Many Requests or any 5XX status code. Can be specified via env variable `POSTMAN_NUM_RETRIES`. Default: 3.
 * `retry_delay` - **(Optional, Integer)** How long to wait (in seconds) in between retries. Can be specified via env variable `POSTMAN_RETRY_DELAY`. Default: 30.
