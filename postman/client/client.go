@@ -81,7 +81,7 @@ func (c *Client) HttpRequest(ctx context.Context, method string, path string, qu
 		if err != nil {
 			return nil, &RequestError{StatusCode: http.StatusInternalServerError, Err: err}
 		}
-		if (resp.StatusCode == http.StatusTooManyRequests) || (resp.StatusCode >= http.StatusInternalServerError) {
+		if (resp.StatusCode == http.StatusBadRequest) || (resp.StatusCode == http.StatusTooManyRequests) || (resp.StatusCode >= http.StatusInternalServerError) {
 			try++
 			if try >= c.numRetries {
 				break

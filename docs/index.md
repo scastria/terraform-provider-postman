@@ -4,6 +4,8 @@ needs to be configured with the proper credentials before it can be used.
 
 This provider does NOT cover 100% of the Postman API.  If there is something missing
 that you would like to be added, please submit an Issue in corresponding GitHub repo.
+
+**IMPORTANT:** The Postman API does not support simultaneous writes to the same resource.  Therefore, you **MUST** use `-parallelism=1` for any apply or destroy commands.
 ## Example Usage
 ```hcl
 terraform {
@@ -24,5 +26,5 @@ provider "postman" {
 ```
 ## Argument Reference
 * `api_key` - **(Required, String)** Your API key obtained via Postman UI. Can be specified via env variable `POSTMAN_API_KEY`.
-* `num_retries` - **(Optional, Integer)** Number of retries for each Postman API call in case of 429-Too Many Requests or any 5XX status code. Can be specified via env variable `POSTMAN_NUM_RETRIES`. Default: 3.
+* `num_retries` - **(Optional, Integer)** Number of retries for each Postman API call in case of 400-Bad Request, 429-Too Many Requests, or any 5XX status code. Can be specified via env variable `POSTMAN_NUM_RETRIES`. Default: 3.
 * `retry_delay` - **(Optional, Integer)** How long to wait (in seconds) in between retries. Can be specified via env variable `POSTMAN_RETRY_DELAY`. Default: 30.
