@@ -102,6 +102,31 @@ func resourceRequest() *schema.Resource {
 					},
 				},
 			},
+			"header": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"description": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+						},
+					},
+				},
+			},
 			"pre_request_script": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -140,14 +165,27 @@ func fillRequest(c *client.RequestData, d *schema.ResourceData) {
 	}
 	queryParams, ok := d.GetOk("query_param")
 	if ok {
-		c.QueryParams = []client.QueryParam{}
+		c.QueryParams = []client.QueryParamHeader{}
 		for _, queryParam := range queryParams.([]interface{}) {
 			queryParamMap := queryParam.(map[string]interface{})
-			c.QueryParams = append(c.QueryParams, client.QueryParam{
+			c.QueryParams = append(c.QueryParams, client.QueryParamHeader{
 				Key:         queryParamMap["key"].(string),
 				Value:       queryParamMap["value"].(string),
 				Description: queryParamMap["description"].(string),
 				Enabled:     queryParamMap["enabled"].(bool),
+			})
+		}
+	}
+	headerValues, ok := d.GetOk("header")
+	if ok {
+		c.Headers = []client.QueryParamHeader{}
+		for _, header := range headerValues.([]interface{}) {
+			headerMap := header.(map[string]interface{})
+			c.Headers = append(c.Headers, client.QueryParamHeader{
+				Key:         headerMap["key"].(string),
+				Value:       headerMap["value"].(string),
+				Description: headerMap["description"].(string),
+				Enabled:     headerMap["enabled"].(bool),
 			})
 		}
 	}
@@ -213,6 +251,19 @@ func fillResourceDataFromRequest(c *client.Request, d *schema.ResourceData) {
 		}
 	}
 	d.Set("query_param", queryParams)
+	var headerValues []map[string]interface{}
+	headerValues = nil
+	if c.Data.Headers != nil {
+		for _, header := range c.Data.Headers {
+			headerMap := map[string]interface{}{}
+			headerMap["key"] = header.Key
+			headerMap["value"] = header.Value
+			headerMap["description"] = header.Description
+			headerMap["enabled"] = header.Enabled
+			headerValues = append(headerValues, headerMap)
+		}
+	}
+	d.Set("header", headerValues)
 	preRequestScripts := []string{}
 	postResponseScripts := []string{}
 	if c.Data.Events != nil {
