@@ -9,18 +9,28 @@ terraform {
 provider "postman" {
 }
 
-data "postman_workspace" "Workspace" {
+# data "postman_workspace" "Workspace" {
 #   name = "Data Team APIs"
-  search_name = "place"
-}
+#   search_name = "place"
+# }
 
-output "workspace_id" {
-  value = data.postman_workspace.Workspace
-}
+# output "workspace_id" {
+#   value = data.postman_workspace.Workspace
+# }
 
 # resource "postman_workspace" "Workspace" {
 #   name = "ShawnTest"
 #   type = "personal"
+# }
+
+# resource "postman_global_environment" "Global" {
+#   workspace_id = postman_workspace.Workspace.id
+#   var {
+#     enabled = true
+#     key = "cream"
+#     type = "default"
+#     value = "pie"
+#   }
 # }
 
 # resource "postman_collection" "Collection" {

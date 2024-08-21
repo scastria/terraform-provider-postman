@@ -27,11 +27,12 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"postman_workspace":       resourceWorkspace(),
-			"postman_collection":      resourceCollection(),
-			"postman_folder":          resourceFolder(),
-			"postman_request":         resourceRequest(),
-			"postman_collection_sort": resourceCollectionSort(),
+			"postman_workspace":          resourceWorkspace(),
+			"postman_collection":         resourceCollection(),
+			"postman_folder":             resourceFolder(),
+			"postman_request":            resourceRequest(),
+			"postman_collection_sort":    resourceCollectionSort(),
+			"postman_global_environment": resourceGlobalEnvironment(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"postman_workspace": dataSourceWorkspace(),
