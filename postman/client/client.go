@@ -46,6 +46,8 @@ func (c *Client) HttpRequest(ctx context.Context, method string, path string, qu
 	if err != nil {
 		return nil, &RequestError{StatusCode: http.StatusInternalServerError, Err: err}
 	}
+	//Set default headers
+	req.Header.Set("User-Agent", "Postman-Terraform-Provider")
 	//Handle query values
 	if query != nil {
 		requestQuery := req.URL.Query()
