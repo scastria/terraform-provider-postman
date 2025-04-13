@@ -23,6 +23,10 @@ resource "postman_request" "example" {
   name = "My Request"
   method = "GET"
   base_url = "https://postman-echo.com/get"
+  body = jsonencode({
+    key1 = "value1"
+    key2 = "value2"
+  })
   query_param {
     key = "p1"
     value = "v1"
@@ -48,6 +52,7 @@ resource "postman_request" "example" {
 * `folder_id` - **(Optional, ForceNew, String)** The parent folder id.
 * `method` - **(Optional, String)** The method of the request. Allowed values: `GET`, `PUT`, `POST`, `PATCH`, `DELETE`, `COPY`, `HEAD`, `OPTIONS`, `LINK`, `UNLINK`, `PURGE`, `LOCK`, `UNLOCK`, `PROPFIND`, `VIEW`. Default: `GET`.
 * `base_url` - **(Optional, String)** The base url of the request (excluding query params).
+* `body` - **(Optional, String)** The raw JSON body of the request.
 * `query_param` - **(Optional, list{query_param})** Configuration block for a query_param.  Can be specified multiple times for each query_param.  Each block supports the fields documented below.
 * `header` - **(Optional, list{header})** Configuration block for a header.  Can be specified multiple times for each header.  Each block supports the fields documented below.
 * `pre_request_script` - **(Optional, List of String)** The JS script to run before the request.

@@ -18,6 +18,9 @@ type RequestData struct {
 	URL          string             `json:"url"`
 	BaseURL      string             `json:"-"`
 	Description  string             `json:"description"`
+	Body         string             `json:"rawModeData"`
+	DataMode     string             `json:"dataMode"`
+	Options      DataOptions        `json:"dataOptions"`
 	Method       string             `json:"method"`
 	QueryParams  []QueryParamHeader `json:"queryParams"`
 	Headers      []QueryParamHeader `json:"headerData"`
@@ -28,6 +31,12 @@ type QueryParamHeader struct {
 	Value       string `json:"value"`
 	Description string `json:"description"`
 	Enabled     bool   `json:"enabled"`
+}
+type DataOptions struct {
+	Raw RawDataOptions `json:"raw"`
+}
+type RawDataOptions struct {
+	Language string `json:"language"`
 }
 
 func (c *Request) RequestEncodeId() string {

@@ -87,7 +87,12 @@ provider "postman" {
 #   collection_id = postman_collection.Collection.collection_id
 #   folder_id = postman_folder.Folder["a"].folder_id
 #   name = "My Request"
-#   method = "GET"
+#   method = "POST"
+#   body = jsonencode(
+#     {
+#       "key" = "value2"
+#     }
+#   )
 #   base_url = "{{url_base}}/get"
 #   query_param {
 #     key = "p1"

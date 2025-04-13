@@ -69,6 +69,10 @@ func resourceRequest() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"body": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"request_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -155,6 +159,18 @@ func fillRequest(c *client.RequestData, d *schema.ResourceData) {
 	if ok {
 		c.Description = description.(string)
 	}
+	body, ok := d.GetOk("body")
+	if ok {
+		c.Body = body.(string)
+		if c.Body != "" {
+			c.DataMode = "raw"
+			c.Options = client.DataOptions{
+				Raw: client.RawDataOptions{
+					Language: "json",
+				},
+			}
+		}
+	}
 	folderId, ok := d.GetOk("folder_id")
 	if ok {
 		c.FolderId = folderId.(string)
@@ -232,6 +248,7 @@ func fillResourceDataFromRequest(c *client.Request, d *schema.ResourceData) {
 	d.Set("collection_id", c.Data.CollectionId)
 	d.Set("name", c.Data.Name)
 	d.Set("description", c.Data.Description)
+	d.Set("body", c.Data.Body)
 	d.Set("folder_id", c.Data.FolderId)
 	d.Set("method", c.Data.Method)
 	// Manually strip query params to prevent URL parsing from escaping variables in the host and path
