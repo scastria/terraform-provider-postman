@@ -5,6 +5,8 @@ type CollectionSortContainer struct {
 }
 
 type CollectionSort struct {
-	Info  CollectionInfo           `json:"info"`
-	Items []map[string]interface{} `json:"item"`
+	Info      CollectionInfo           `json:"info"`
+	Items     []map[string]interface{} `json:"item"`
+	Variables []interface{}            `json:"variable"`
+	Events    []interface{}            `json:"event"`
 }
